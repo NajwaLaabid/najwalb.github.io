@@ -5,16 +5,6 @@
     <link>http://najwalaabid.github.io/</link>
     <description>Recent content on Najwa Laabid</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language>
-    <lastBuildDate>Mon, 16 Nov 2020 20:00:24 +0200</lastBuildDate><atom:link href="http://najwalaabid.github.io/index.xml" rel="self" type="application/rss+xml" />
-    <item>
-      <title>About Me</title>
-      <link>http://najwalaabid.github.io/posts/about-me/</link>
-      <pubDate>Mon, 16 Nov 2020 20:00:24 +0200</pubDate>
-      
-      <guid>http://najwalaabid.github.io/posts/about-me/</guid>
-      <description>Welcome! This will be my personal website. More content coming soon :)</description>
-    </item>
-    
+    <language>en-us</language><atom:link href="http://najwalaabid.github.io/index.xml" rel="self" type="application/rss+xml" />
   </channel>
 </rss>
