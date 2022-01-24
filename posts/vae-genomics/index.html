@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Variational Autoencoders for Single-Cell Genomics | Najwa Laabid</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Introduction Like many fields with large multi-variate datasets, single-cell genomics benefits widely from deep generative models like Variational Autoencoders (VAEs). The purpose of this tutorial is to explain how generative modeling, particularly VAEs, are used in this subfield of bioinformatics. Specifically, we will cover the biological background of single-cell sequencing and the computational problems that arise from there. Then we will propose a Bayesian formulation of said problems and present the mathematical models used to fit mutli-omic single-cell data.">
+    <meta name="generator" content="Hugo 0.91.2" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
+
+
+
+    
+    
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Variational Autoencoders for Single-Cell Genomics" />
+<meta property="og:description" content="Introduction Like many fields with large multi-variate datasets, single-cell genomics benefits widely from deep generative models like Variational Autoencoders (VAEs). The purpose of this tutorial is to explain how generative modeling, particularly VAEs, are used in this subfield of bioinformatics. Specifically, we will cover the biological background of single-cell sequencing and the computational problems that arise from there. Then we will propose a Bayesian formulation of said problems and present the mathematical models used to fit mutli-omic single-cell data." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://najwalaabid.github.io/posts/vae-genomics/" /><meta property="article:section" content="posts" />
+<meta property="article:published_time" content="2021-12-30T00:00:00+02:00" />
+<meta property="article:modified_time" content="2021-12-30T00:00:00+02:00" />
+
+<meta itemprop="name" content="Variational Autoencoders for Single-Cell Genomics">
+<meta itemprop="description" content="Introduction Like many fields with large multi-variate datasets, single-cell genomics benefits widely from deep generative models like Variational Autoencoders (VAEs). The purpose of this tutorial is to explain how generative modeling, particularly VAEs, are used in this subfield of bioinformatics. Specifically, we will cover the biological background of single-cell sequencing and the computational problems that arise from there. Then we will propose a Bayesian formulation of said problems and present the mathematical models used to fit mutli-omic single-cell data."><meta itemprop="datePublished" content="2021-12-30T00:00:00+02:00" />
+<meta itemprop="dateModified" content="2021-12-30T00:00:00+02:00" />
+<meta itemprop="wordCount" content="1946">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Variational Autoencoders for Single-Cell Genomics"/>
+<meta name="twitter:description" content="Introduction Like many fields with large multi-variate datasets, single-cell genomics benefits widely from deep generative models like Variational Autoencoders (VAEs). The purpose of this tutorial is to explain how generative modeling, particularly VAEs, are used in this subfield of bioinformatics. Specifically, we will cover the biological background of single-cell sequencing and the computational problems that arise from there. Then we will propose a Bayesian formulation of said problems and present the mathematical models used to fit mutli-omic single-cell data."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+      <div class="bg-black">
+          <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Najwa Laabid
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+      
+<div class="ananke-socials">
+  
+</div>
+    </div>
+  </div>
+</nav>
+
+          
+          <script>
+ MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } });
+ MathJax = {
+     tex: {
+         inlineMath: [['$', '$'], ['\\(', '\\)']]
+     },
+     svg: {
+         fontCache: 'global'
+     }
+ };
+</script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+</script>
+
+          
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        POSTS
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">Variational Autoencoders for Single-Cell Genomics</h1>
+      
+      <p class="tracked">
+          By <strong>
+          
+              Najwa Laabid
+          
+          </strong>
+      </p>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-12-30T00:00:00+02:00">December 30, 2021</time>
+      
+
+      
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links nested-img mid-gray pr4-l w-two-thirds-l"><h2 id="introduction">Introduction</h2>
+<p>Like many fields with large multi-variate datasets, single-cell genomics benefits widely from deep generative models like Variational Autoencoders (VAEs).
+The purpose of this tutorial is to explain how generative modeling, particularly VAEs, are used in this subfield of bioinformatics.
+Specifically, we will cover the biological background of single-cell sequencing and the computational problems that arise from there.
+Then we will propose a Bayesian formulation of said problems and present the mathematical models used to fit mutli-omic single-cell data.
+Finally, the last section covers implementation details and considerations in Python, mainly comparing the two most popular deep learning frameworks: Pytorch and Tensorflow 2.0.</p>
+<p><!-- raw HTML omitted --><!-- raw HTML omitted --></p>
+<figure><img src="/ox-hugo/sc-seq-data.png"
+         alt="Figure 1: A UMAP plot for single-cell sequencing data."/><figcaption>
+            <p>Figure 1: A UMAP plot for single-cell sequencing data.</p>
+        </figcaption>
+</figure>
+
+<h2 id="data-collection-through-sequencing">Data collection through sequencing</h2>
+<p>Single-cell sequencing data (sometimes called single-cell multi-omics) refers to a number of sequencing activities meant to count the molecules of a specific
+component of a cell, called an &lsquo;omic&rsquo;.
+Components of interest can be proteins, RNA or DNA molecules for example.
+Sequencing technologies can identify single molecules of each omic, and hence return a count of molecules per omic subtype
+(for example, the number of molecules for each identifiable protein  or gene in the case of RNA counts).
+Single-cell sequencing means that the counts are computed at the level of individual cells, as opposed to bulk sequencing where the counts
+are averaged over multiple cells.
+While single-cell sequencing allows a more granular view into biological phenomena, it also suffers from more technical noise which is generally
+mitigated with averaging in bulk-sequencing.
+In addition, counting molecules on a single-cell level also means returning larger datasets, which adds to the challenge of any computational task.</p>
+<h2 id="modeling-for-count-data">Modeling for count data</h2>
+<p>In general, the purpose of genetic analysis is to study the ontology, state, or function of cells through their molecular composition.
+For example, modeling RNA counts can reveal transcriptional variation among cells, while analyzing protein counts uncovers cell phenotypes
+and function.
+Certain sequencing technologies, like CITE-seq, offer a joint snapshot of multiple modalities per cell (protein and RNA molecules together
+in the case of CITE-seq data).
+Modeling this data jointly gives a multi-view on the molecular state of the cell, and can enhance subsequent downstream analysis tasks
+(like clustering, visualization or branching analysis).
+The underlying challenge common to all these tasks is to separate the true counts from the technical noise.</p>
+<p>We are interested in learning the distribution: \(p_v(x_n, y_n|s_n)\), also known as the model evidence.
+To do so, we rely on the VAE framework to learn the parameters of the distribution using Bayesian principles.
+We can think of this problem from the perspective of a <strong><strong>generative probabilistic model</strong></strong>.</p>
+<p>In this context, generative modeling offers a number of benefits,
+including the ability to generate observations with similar characteristics,
+the possibility to model data in an unsupervised fashion,
+and the application of dimensionality reduction which is the basis of multiple other downstream analyses.</p>
+<h2 id="generative-modeling">Generative modeling</h2>
+<p>A generative model allows us to sample data that looks like the observed (or training) data.
+To do so, the model defines a joint distribution between all training variables, including any labels if present
+(hence the \(p_v(x_n, y_n)\) distribution in the case of omics data).
+This is in contrast to discriminative models which only seek to learn a mapping between features X and labels Y.
+In the case of multi-omic data as discussed in the TotalVI paper, we add a condition representing the batch variable,
+which means we are learning a joint distribution per batch.</p>
+<p>The simplest generative model only allows computing \(P_{gt}(X)\) numerically.
+Therefore a probability distribution can be considered a generative model.
+A probability distribution does not help synthesize a sample that is similar to the observed data.
+To formalize this sampling goal, we say that we learn a model \(P\) which we can sample from, and that is
+as close as possible to the original distribution \(P_{gt}(X)\).
+Approximating this model has a number of challenges notably: requiring strong assumptions about the structure of data,
+making severe approximations that lead to sub-optimal models, or relying on expensive inference procedures.
+At the same time, neural networks are available as efficient function approximators thanks to algorithms like back-propagation.
+Variational autoencoders therefore combine the benefits of neural networks and generative models
+to create a framework for building complex generative distributions with efficient training thanks to back-propagation.</p>
+<p>More complicated generative models need to account for multiple dimensions when approximating the generating distribution.
+To simplify this approximation, we define higher level concepts that lower the dimensions of the feature space,
+and therefore create distributions that are easier to learn.
+These concepts are formally known as latent variables.
+The word latent here refers to the fact that we cannot know the values of these hidden variables from
+the generated samples alone.
+When using latent variables, we create a model that is representative of a given dataset when for every
+datapoint \(X\) in the dataset there is at least one configuration of the latent variable \(Z\) which causes the model
+to generate something close to \(X\).
+Formally, we define a family of deterministic functions \(f(z,\theta)\), parametrized by a vector theta and defined
+over the latent variable space \(Z\). Assume we have a distribution \(P(z)\) allowing us to sample \(z\) from \(Z\).
+We wish to optimize \(\theta\) such that we can sample \(z\) from \(P(z)\) and get \(x' = f(z;\theta)\)
+that is close to a datapoint \(x\).</p>
+<p>In the maximum likelihood framework, we say we want to maximize the probability of each X in the training set.
+\(P(X)\) is defined in the generative process as follows:</p>
+<p>\begin{equation}
+\label{eq:objective}
+P(X) = \int P(X|z;\theta) P(z) dzp
+\end{equation}</p>
+<p>Note here that we replaced \(f(z;\theta)\) by \(P(X|z;\theta)\).
+Often times, we take \(P(X|z;\theta) = N(X|f(z;\theta),\sigma^2 * I)\).
+This replacement is necessary to formalize the intuition that some \(z\) needs to result in samples that are merely like \(X\).
+Furthermore, we need a function that is continuous in \(\theta\) to be able to use back-propagation to optimize the parameters
+of the model. Taking \(X = f(z,\theta)\) results in \(P(X|z)\) having a Dirac delta function which would block derivation.</p>
+<p>So far we have an objective function to optimize and we know the intuition behind the generative model we are building.
+To carry on with the optimization, we need to address two issues: defining latent variables and approximating
+intractable integrals. Luckily, the variational autoencoder framework has a solution for both.</p>
+<h2 id="variational-autoencoders">Variational Autoencoders</h2>
+<h3 id="dealing-with-latent-variables">Dealing with latent variables</h3>
+<p>Choosing latent variables \(z\) is complicated since we would need to identify relevant variables and define
+the correlation structure between them.
+We would therefore want to avoid explicitly deciding on the latent structure of the model.
+VAEs allow this freedom by assuming that \(z\) comes from a simple distribution like the multinormal standard distribution \(N(0, I)\).</p>
+<p>Using a sufficiently complicated function, we can map samples from this simple distribution to any distribution
+in \(d\) dimensions. Therefore, using function approximators, we can create latent variables with complicated distributions,
+then learn a mapping between said variables and the observed data \(X\) (recall the function \(f(z;\theta)\)).
+In practice, if \(f(z;\theta)\) is a multi-layer network, we can imagine the network using its first few layers
+to map normally distributed \(z\) to more complex distributions. In fact, if latent variables can be useful at all for the model,
+we can assume that they are computed in some layer without a need for explicit instructions.</p>
+<h3 id="model-optimization">Model optimization</h3>
+<p>Recall that the goal of this model is to optimize equation \ref{eq:objective}.
+Normally, we can compute an approximation of \(P(X)\) as follows:</p>
+<p>\begin{equation}
+\label{eq:objective_sampling}
+P(X) \approx \frac{1}{n} \int_i P(X|z_i)
+\end{equation}</p>
+<p>where \(z_i\) are a large number of sampled \(z\) values \({z_1, z_2, &hellip;, z_n}\).
+For high dimensional cases, \(n\) might need to be extremely large to get an accurate estimation of \(P(X)\).
+This problem is generally known as the <strong><strong>curse of dimensionality</strong></strong>.
+One possible solution in this case is to use a more efficient sampling procedure, in which we only select
+the values of \(z\) substantially contributing to the estimation of \(P(X)\).
+We say we need to define a function \(Q(z|X)\) which takes a value \(X\) and gives us a distribution over \(z\) values
+that are likely to produce \(X\).
+This is the novelty of variational autoencoders, and this is also where the encoder function appears.
+Using \(Q\), we can estimate \(E_{z \sim Q} P(X|z)\) easily.
+Then to optimize \(P(X)\), we need to relate \(E_{z \sim Q} P(X|z)\) and \(P(X)\).
+This relationship is one of the corner stones of variational Bayes.
+Next, we shall see how to derive this relationship and how it changes the objective function of the model.</p>
+<h3 id="a-new-objective-function-using-kullback-leibler-divergence">A new objective function using Kullback-Leibler divergence</h3>
+<p>To drive the new objective function with optimized sampling, we start by defining the KL divergence or \(D\)
+between \(P(z|X)\) and \(Q(z)\) for an arbitrary \(Q\):</p>
+<p>\begin{equation}
+\label{eq:1}
+D[Q(z)||P(z|X)] = E_{z \sim Q} [log Q(z) - log P(z|X)]
+\end{equation}</p>
+<p>We apply Bayes rule to \(P(z|X)\) to get both \(P(X)\) and \(P(X|z)\):</p>
+<p>\begin{equation}
+\label{eq:2}
+D[Q(z)||P(z|X)] = E_{z \sim Q} [log Q(z) - log P(X|z) - log P(z)] + log P(X)
+\end{equation}</p>
+<p>\(log P(X)\) is outside the expected value because it is not dependent on \(z\). We rearrange the equation to get:</p>
+<p>\begin{equation}
+\label{eq:3}
+log P(X) - D[Q(z)||P(z|X)] =  E_{z \sim Q} [log P(X|z)] - D[Q(z)||P(z)]
+\end{equation}</p>
+<p>We replace \(Q(z)\) with a distribution that depends on \(X\) and makes \(D[Q(z)||P(z|X)]\) small:</p>
+<p>\begin{equation}
+\label{eq:objective_simplified}
+log P(X) - D[Q(z|X)||P(z|X)] =  E_{z \sim Q} [log P(X|z)] - D[Q(z|X)||P(z)]
+\end{equation}</p>
+<p>This equation is at the heart of the variational autoencoder.
+The left hand side has the quantity we want to maximize, \(P(X)\), in addition to
+an error term which makes \(Q\) produce $z$s that can reproduce a given \(X\).
+The right hand side offers an equivalent expression that we can optimize using gradient descent.
+Quantities \(Q(z|X)\) and \(P(X|z)\) also reveal the encoding/decoding aspect of this framework:
+\(Q\) encodes \(X\) into \(z\) while \(P\) decodes \(z\) into \(X\).
+Lastly, when using an arbitrarily high-capacity model for \(Q(z|X)\), we can make it match
+\(P(z|X)\), which leads to a KL-divergence of 0, and we will thus be optimizing \(log P(X)\) directly.
+Next we will see how we apply gradient descent to optimize this objective function.</p>
+<h3 id="gradient-descent-and-reparametrization-trick">Gradient-descent and reparametrization trick</h3>
+<p>To apply gradient-descent to the right hand side of equation \ref{eq:objective_simplified},
+we first need to simplify its two terms.
+The second term, \(D[Q(z|X)||P(z)]\), has a closed form expression shown in equation \ref{eq:closed_form_kl}
+(with simplifications) assuming a Gaussian form for \(Q(z|X)\) as shown in equation \ref{eq:q_gaussian}.</p>
+<p>\begin{equation}
+\label{eq:closed_form_kl}
+\mathcal{D}[\mathcal{N}(\mu(X), \Sigma(X))||\mathcal{N}(0,I)] = \frac{1}{2}(tr(\Sigma(X)) + (\mu(X))T (\mu(X)) - k - log det(\Sigma(X)))
+\end{equation}</p>
+<p>\begin{equation}
+\label{eq:q_gaussian}
+Q(z|X) = \mathcal{N}(z|\mu(X;\mathcal{v}))
+\end{equation}</p>
+<p>where μ and Σ are arbitrary deterministic functions with parameters \(\mathcal{v}\), implemented through neural networks,
+and Σ is constrained to be diagonal.
+To simplify the first term in equation \ref{eq:objective_simplified}, we take one sample of \(z\) and consider \(log P(X|z)\)
+for that \(z\) as an approximation of \(E_{z \sim Q} [log P(X|z)]\).
+Since gradient descent already uses different values of \(X\) sampled from dataset \(D\), we assume that this sampling process
+over many iterations leads to reasonable approximations of the expected value of interest.
+This sampling steps disrupts the back-propagation algorithm required to use gradient descent.
+Namely, since sampling is a discrete operation, we cannot take the gradient of its function.
+This is where the <strong><strong>reparametrization trick</strong></strong> comes to play.
+We take the sampling step to the input layer, and replace \(z \sim \mathcal{N}(\mu (X), \Sigma (X))\) with \(z = \mu(X) + \Sigma^{\frac{1}{2}}(X) * \epsilon\),
+where \(\epsilon \sim \mathcal{N}(0, I)\).</p>
+<h3 id="summary">Summary</h3>
+<h2 id="examples">Examples</h2>
+<p>Here we review some application of VAEs to modeling sequencing data.
+The examples include implementations in PyTorch⁄Tensorflow.</p>
+<h2 id="references">References</h2>
+<p>VAE from NN and generative model perspectives: <a href="https://jaan.io/what-is-variational-autoencoder-vae-tutorial/">https://jaan.io/what-is-variational-autoencoder-vae-tutorial/</a>
+Original VAE paper: <a href="https://arxiv.org/abs/1312.6114">https://arxiv.org/abs/1312.6114</a>
+Brian Keng&rsquo;s post on VAEs: <a href="https://bjlkeng.github.io/posts/variational-autoencoders/">https://bjlkeng.github.io/posts/variational-autoencoders/</a>
+Tutorial on variational auto-encoders: <a href="https://arxiv.org/abs/1606.05908">https://arxiv.org/abs/1606.05908</a></p>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://najwalaabid.github.io/" >
+    &copy;  Najwa Laabid 2022 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+</div></div>
+  </div>
+</footer>
+
+  </body>
+</html>
