@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    
+    <title>Variational Autoencoders for Single-Cell Genomics | Najwa Laabid</title>
+    <meta name="viewport" content="width=device-width,minimum-scale=1">
+    <meta name="description" content="Introduction When participating in the Neurips 2021 single-cell analysis challenge, my team and I proposed a solution based on variational autoencoders (VAEs) for the modality prediction task. Later on, when trying to improve the model to include batch effect correction, I realized I needed to delve deeper into the mathematics behind VAEs and their modeling philosophy to be able to manipulate them fully. This lead to a reading spree on everything variational autoencoders, from the original paper, to subsequent published tutorials, and a number of online blogs (Keng&rsquo;s, and Jaan&rsquo;s being my favorite).">
+    <meta name="generator" content="Hugo 0.91.2" />
+    
+    
+      <META NAME="ROBOTS" CONTENT="NOINDEX, NOFOLLOW">
+    
+
+    
+<link rel="stylesheet" href="/ananke/css/main.min.css" >
+
+
+
+    
+    
+    
+      
+
+    
+
+    
+    
+    <meta property="og:title" content="Variational Autoencoders for Single-Cell Genomics" />
+<meta property="og:description" content="Introduction When participating in the Neurips 2021 single-cell analysis challenge, my team and I proposed a solution based on variational autoencoders (VAEs) for the modality prediction task. Later on, when trying to improve the model to include batch effect correction, I realized I needed to delve deeper into the mathematics behind VAEs and their modeling philosophy to be able to manipulate them fully. This lead to a reading spree on everything variational autoencoders, from the original paper, to subsequent published tutorials, and a number of online blogs (Keng&rsquo;s, and Jaan&rsquo;s being my favorite)." />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="http://najwalaabid.github.io/blog/vae-genomics/" /><meta property="article:section" content="blog" />
+<meta property="article:published_time" content="2021-12-30T00:00:00+02:00" />
+<meta property="article:modified_time" content="2021-12-30T00:00:00+02:00" />
+
+<meta itemprop="name" content="Variational Autoencoders for Single-Cell Genomics">
+<meta itemprop="description" content="Introduction When participating in the Neurips 2021 single-cell analysis challenge, my team and I proposed a solution based on variational autoencoders (VAEs) for the modality prediction task. Later on, when trying to improve the model to include batch effect correction, I realized I needed to delve deeper into the mathematics behind VAEs and their modeling philosophy to be able to manipulate them fully. This lead to a reading spree on everything variational autoencoders, from the original paper, to subsequent published tutorials, and a number of online blogs (Keng&rsquo;s, and Jaan&rsquo;s being my favorite)."><meta itemprop="datePublished" content="2021-12-30T00:00:00+02:00" />
+<meta itemprop="dateModified" content="2021-12-30T00:00:00+02:00" />
+<meta itemprop="wordCount" content="2318">
+<meta itemprop="keywords" content="" /><meta name="twitter:card" content="summary"/>
+<meta name="twitter:title" content="Variational Autoencoders for Single-Cell Genomics"/>
+<meta name="twitter:description" content="Introduction When participating in the Neurips 2021 single-cell analysis challenge, my team and I proposed a solution based on variational autoencoders (VAEs) for the modality prediction task. Later on, when trying to improve the model to include batch effect correction, I realized I needed to delve deeper into the mathematics behind VAEs and their modeling philosophy to be able to manipulate them fully. This lead to a reading spree on everything variational autoencoders, from the original paper, to subsequent published tutorials, and a number of online blogs (Keng&rsquo;s, and Jaan&rsquo;s being my favorite)."/>
+
+	
+  </head>
+
+  <body class="ma0 avenir bg-near-white">
+
+    
+   
+  
+
+  <header>
+      <div class="bg-black">
+          <nav class="pv3 ph3 ph4-ns" role="navigation">
+  <div class="flex-l justify-between items-center center">
+    <a href="/" class="f3 fw2 hover-white no-underline white-90 dib">
+      
+        Najwa Laabid
+      
+    </a>
+    <div class="flex-l items-center">
+      
+
+      
+        <ul class="pl0 mr3">
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/about-me/" title="About me page">
+              About me
+            </a>
+          </li>
+          
+          <li class="list f5 f4-ns fw4 dib pr3">
+            <a class="hover-white no-underline white-90" href="/blog/" title="Blog page">
+              Blog
+            </a>
+          </li>
+          
+        </ul>
+      
+      
+<div class="ananke-socials">
+  
+    <a href="https://twitter.com/__najwalb" target="_blank" class="twitter ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="Twitter link" rel="noopener" aria-label="follow on Twitter——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;fill:{{ .fill }};"/></svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
+</svg>
+</span></a>
+  
+    <a href="https://github.com/NajwaLaabid" target="_blank" class="github ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="GitHub link" rel="noopener" aria-label="follow on GitHub——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
+</svg>
+</span></a>
+  
+    <a href="https://www.linkedin.com/in/najwa-laabid/" target="_blank" class="linkedin ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="LinkedIn link" rel="noopener" aria-label="follow on LinkedIn——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z" style="fill-rule:evenodd;clip-rule:evenodd;fill:{{ .fill }};"/>
+</svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
+</svg>
+</span></a>
+  
+</div>
+    </div>
+  </div>
+</nav>
+
+          
+          <script>
+ MathJax.Hub.Config({ TeX: { equationNumbers: { autoNumber: "all" } } });
+ MathJax = {
+     tex: {
+         inlineMath: [['$', '$'], ['\\(', '\\)']]
+     },
+     svg: {
+         fontCache: 'global'
+     }
+ };
+</script>
+
+<script src="http://najwalaabid.github.io/js/mathjax-config.js"></script>
+<script type="text/javascript" id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js">
+</script>
+
+          
+    </div>
+  </header>
+
+
+
+    <main class="pb7" role="main">
+      
+  
+  <article class="flex-l flex-wrap justify-between mw8 center ph3">
+    <header class="mt4 w-100">
+      <aside class="instapaper_ignoref b helvetica tracked">
+          
+        BLOG
+      </aside>
+      
+
+
+
+
+
+
+
+
+
+
+  <div id="sharing" class="mt3 ananke-socials">
+    
+      
+      <a href="https://twitter.com/share?url=http://najwalaabid.github.io/blog/vae-genomics/&amp;text=Variational%20Autoencoders%20for%20Single-Cell%20Genomics" class="ananke-social-link twitter no-underline" aria-label="share on Twitter">
+        
+        <span class="icon"> <svg style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;fill:{{ .fill }};"/></svg>
+</span>
+        
+      </a>
+    
+      
+      <a href="https://www.linkedin.com/shareArticle?mini=true&amp;url=http://najwalaabid.github.io/blog/vae-genomics/&amp;title=Variational%20Autoencoders%20for%20Single-Cell%20Genomics" class="ananke-social-link linkedin no-underline" aria-label="share on LinkedIn">
+        
+        <span class="icon"> <svg style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z" style="fill-rule:evenodd;clip-rule:evenodd;fill:{{ .fill }};"/>
+</svg>
+</span>
+        
+      </a>
+    
+  </div>
+
+
+      <h1 class="f1 athelas mt3 mb1">Variational Autoencoders for Single-Cell Genomics</h1>
+      
+      <p class="tracked">
+          By <strong>
+          
+              Najwa Laabid
+          
+          </strong>
+      </p>
+      
+      
+      
+      <time class="f6 mv4 dib tracked" datetime="2021-12-30T00:00:00+02:00">December 30, 2021</time>
+      
+
+      
+      
+        <span class="f6 mv4 dib tracked"> - 11 minutes read </span>
+        <span class="f6 mv4 dib tracked"> - 2318 words </span>
+      
+    </header>
+    <div class="nested-copy-line-height lh-copy serif f4 nested-links nested-img mid-gray pr4-l w-two-thirds-l"><h2 id="introduction">Introduction</h2>
+<p>When participating in the <a href="https://openproblems.bio/neurips_2021/">Neurips 2021 single-cell analysis challenge</a>, my team and I proposed
+a solution based on variational autoencoders (VAEs) for the <a href="https://openproblems.bio/neurips_docs/about_tasks/task1_modality_prediction/">modality prediction</a> task.
+Later on, when trying to improve the model to include <a href="https://en.wikipedia.org/wiki/Batch_effect">batch effect correction</a>, I realized I needed to
+delve deeper into the mathematics behind VAEs and their modeling philosophy to be able to manipulate them fully.
+This lead to a reading spree on everything variational autoencoders, from the <a href="https://arxiv.org/abs/1312.6114">original paper</a>, to subsequent
+<a href="https://arxiv.org/abs/1606.05908">published tutorials</a>, and a number of online blogs (<a href="https://bjlkeng.github.io/posts/variational-autoencoders/">Keng&rsquo;s</a>, and <a href="https://jaan.io/what-is-variational-autoencoder-vae-tutorial/">Jaan&rsquo;s</a> being my favorite).
+One thing I noticed though is that all of these tutorials focused on VAEs' application in computer vision.
+I thought sharing my notes on VAEs with applications in analyzing single-cell data might be more beneficial
+to people with a bioinformatics' background. Hence this series of tutorials.
+This first tutorial presents the motivation behind VAEs and explains their mathematical basis,
+all within the context of modeling single-cell genomics.
+A following tutorial will cover an implementation of a simple VAE for modeling sc-RNA seq data.
+No prior knowledge of Bayesian methods or single-cell analysis is assumed.</p>
+<h2 id="about-single-cell-sequencing">About single-cell sequencing</h2>
+<p>In genetics, <a href="https://en.wikipedia.org/wiki/Sequencing">sequencing</a> refers to the activity of counting molecules of a specific component of a cell, called an omic.
+Components of interest can be proteins, RNA or DNA molecules.
+Sequencing technologies return a count of molecules per omic subtype (for example, the number of molecules for each identifiable protein or gene).
+<a href="https://www.nature.com/collections/nylbrpjhlp/">Single-cell sequencing</a> means that the counts are computed at the level of individual cells, as opposed to bulk sequencing where the counts
+are averaged over multiple cells.
+While single-cell sequencing allows a more granular view into biological phenomena, it also suffers from more technical noise and
+much larger (therefore computationally demanding) datasets.</p>
+<p>In general, the purpose of genetic analysis is to study the ontology, state, or function of cells through their molecular composition.
+For example, modeling RNA counts reveals transcriptional variation among cells, while analyzing protein counts uncovers cell phenotypes
+and functions.
+Certain sequencing technologies offer a joint snapshot of multiple modalities per cell.
+For example, <a href="https://www.beckman.com/flow-cytometry/software/cytobank-premium/rna-seq">CITE-seq</a> counts protein and RNA molecules together.
+Modeling this data jointly gives a multi-view on the molecular state of the cell, and can enhance subsequent downstream analysis tasks
+(like clustering, visualization or branching analysis).</p>
+<h2 id="generative-modeling">Generative modeling</h2>
+<h3 id="generative-modeling-for-count-data">Generative modeling for count data</h3>
+<p>One way to think of generative modeling in this context is as follows.
+Assume we have the true count of a single gene, \(z\).
+\(z\) is latent, i.e. we cannot observe it directly.
+Instead, our measurements give us \(x\), the number of RNA molecules observed during sequencing.
+\(x\) can be thought of as a random variable dependent on \(z\) (we know that the observed values are the true counts with some
+corruption). If we want to generate a value for \(x\), we can start by choosing a value
+for \(z\) (sampling from \(P(z)\)), then setting the value of \(x\) accordingly (sampling from \(P(x|z)\)).
+This generating process is shown in figure <a href="fig:plate-model">fig:plate-model</a> through a <a href="https://en.wikipedia.org/wiki/Graphical_model#:~:text=A%20graphical%20model%20or%20probabilistic,Bayesian%20statistics%E2%80%94and%20machine%20learning">graphical model</a>.
+Typically, when modeling cells with multiple genes, \(Z\) (the whole vector of latent variables) is taken to be of lower dimensions than \(X\)
+(the whole vector of gene counts).
+This latent space also serves to represent the cell as a point in a lower dimensional space for visualization and clustering.</p>
+<p><a id="figure--fig:plate-model"></a></p>
+<figure><img src="/ox-hugo/plate-model.png"
+         alt="Figure 1: Generative model with a latent variable in plate notation." width="50px"/><figcaption>
+            <p><span class="figure-number">Figure 1: </span>Generative model with a latent variable in plate notation.</p>
+        </figcaption>
+</figure>
+
+<p>Ideally, latent space representations for cells are expected to preserve biological structure.
+We imagine that the lower dimensions capture key factors controling the observed biological phenomenon,
+like a cell subtype, a phase in a biological process, counts of driver genes, etc.</p>
+<h3 id="mathematical-formulation">Mathematical formulation</h3>
+<p>Let&rsquo;s define a few notations to use for the rest of the tutorial.
+We are working on the problem of modeling transcription from RNA molecule counts obtained from single-cell RNA sequencing.
+The input data is an \(N \times G\) count matrix \(X\), where \(N\) is the number of cells sequenced, and \(G\) is the number of genes observed.
+The matrix typically contains around tens of thousands of genes and hundreds of thousands of cells.
+We call \(Z\) the vector of latent variables used in modeling.</p>
+<p>Our features are gene counts and our data points are cells.
+We are interested in learning the distribution \(P(X)\) which describes the dependencies between the genes of our dataset.
+Knowing \(P(X)\), we can sample cells similar to the ones observed in our experiments and do all kinds of
+informative statistical analyses later on.
+We can express \(P(X)\) in terms of the generative model shown in figure <a href="#figure--fig:plate-model">1</a> using the law of total probability:</p>
+<p>\begin{equation}
+\label{eq:objective}
+P(X) = \int P(X|Z) P(Z) dZ
+\end{equation}</p>
+<p>\(\textit{Note}\): single variables are represented by lower case letters \(x\) and \(z\), and multi-variate (vector) models are represented by upper case
+letters \(X\) and \(Z\).</p>
+<h3 id="intractable-integrals--challenge-1">Intractable integrals (challenge 1)</h3>
+<p>To apply equation <a href="#org962d1c1">1</a>, let&rsquo;s consider the example of tree heights in a forest measured with a drone.
+It is reasonable to assume that the measurements are noisy, so we can model them with the generative process shown in
+figure <a href="#figure--fig:plate-model">1</a>, and consequently compute the marginal probability with equation <a href="#org962d1c1">1</a>.
+Because of its ability to generate samples similar to the observed ones, the distribution \(P(x)\) can be used to
+<a href="https://arxiv.org/pdf/2005.08334.pdf">evaluate machine learning models</a>.</p>
+<p>We assume that the true tree heights follow a Gaussian distribution: \(P(z) \sim \mathcal{N}(\mu_z, \sigma_z)\).
+The likelihood of getting a measurement \(x\) given a true height \(z\) is also Gaussian: \(P(x|z) \sim \mathcal{N}(Gz, \sigma_{x})\),
+where \(y = Gz + \epsilon\), and \(\epsilon \sim \mathcal{N}(Gz, \sigma_{x})\).
+We compute the generating distribution \(P(x)\) by solving the integral in equation <a href="#org962d1c1">1</a> (see <a href="https://www.cs.ubc.ca/~murphyk/Papers/bayesGauss.pdf">here</a> for a solution of the integral,
+and here for a <a href="https://stats.stackexchange.com/questions/308838/marginal-likelihood-derivation-for-normal-likelihood-and-prior">simpler derivation</a> through algebraic manipulation).
+The final form of the distribution is: \(P(x) = \mathcal{N}(G\mu_{z}, G\sigma_{z}G^{T}+ \sigma_{x})\),
+which can be thought of as a function of the parameters \(\mu_{z}\), \(\sigma_{z}\), and \(\sigma_{x}\).
+We can learn the values of said parameters from the data using maximum likelihood, which can be <a href="https://stats.stackexchange.com/questions/402511/is-it-correct-to-say-the-neural-networks-are-an-alternative-way-of-performing-ma">implemented as a neural network</a>.</p>
+<p>Computing both \(P(x)\) was only possible because we have what is known in Bayesian statistics as a <a href="https://en.wikipedia.org/wiki/Conjugate_prior">conjugate prior</a>.
+A conjugate prior is a distribution which, when multiplied by a given likelihood, returns a distribution of the same family.
+Unfortunately, we only have conjugate priors for a small family of distributions. In bioinformatics for example, fitting sc-RNA-seq counts
+is usually done with a negative binomial likelihood: \(x \sim NegativeBinomial(\rho_{ng}, \theta_{g})\). With no known conjugate prior,
+the posterior and marginal distributions cannot be computed in closed form, and therefore their parameters
+cannot be dervied using neural networks.</p>
+<p>Calculating distributions without conjugate priors is the first challenge that variational autoencoders attempt to solve.
+Another challenge is defining latent variables, which is discussed in the next section through a concrete example.</p>
+<h3 id="a-representative-latent-space--challenge-2">A representative latent space (challenge 2)</h3>
+<p>Earlier, we mentioned that latent variables are typically taken to be of lower dimensions than the original features.
+The new dimensions can be thought of as capturing defining characteristics of the studied phenomenon (e.g. the key biological factors
+influencing transcription). If we want to define this latent space in the same way we define the feature space (i.e. manually),
+we face a number of challenges related to choosing the variables and defining the correlation structure between them. When studying transcription
+from sc-RNA-seq counts for example, a candidate list for latent variables may look like this:</p>
+<ul>
+<li>10 random variables (RV) representing the primary driver genes</li>
+<li>1 categorical RV with 3 levels reflecting the assumed cell subpopulations</li>
+<li>1 continuous variable for the transcription phase as a unit of time</li>
+<li>&hellip;</li>
+</ul>
+<p>Creating an exhaustive list for these variables is already a challenging task. On top of that, we need to define their distribution
+and the correlation structure between them, which gets more complicated the more variables we&rsquo;re considering.
+It would be considerably easier to have an automated mechanism to define latent variables as needed, preferrably from the data.
+Variational autoencdoers offer a concrete implementation of this concept, as we shall see next.</p>
+<h2 id="variational-autoencoders">Variational Autoencoders</h2>
+<h3 id="vaes-as-function-approximators">VAEs as function approximators</h3>
+<p>The main advantage of VAEs is their use of <a href="https://machinelearningmastery.com/neural-networks-are-function-approximators/">function approximators</a> (i.e. Neural Networks) to build generative models.
+The first application of function approximators within this framework is in defining the latent variables \(Z\).
+VAEs assume that \(Z\) come from a simple distribution like a standard isotropic multinormal \(N(0, I)\).
+Using a sufficiently complicated function, we can map samples from this distribution to any other distribution
+in \(d\) dimensions. We can thus create latent variables with complicated priors,
+then learn a mapping between said variables and the observed data \(X\).</p>
+<p>The second use of function approximators is in redefining a more efficient sampling procedure to approximate \(P(X)\).
+Recall that the objective of this modeling exercise is to optimize equation <a href="#org962d1c1">1</a>.
+If we can find a differentiable formula for \(P(X)\), we can take the gradient of that formula
+and optimize the model via <a href="https://en.wikipedia.org/wiki/Stochastic_gradient_descent">stochastic gradient descent</a>.
+For most likelihoods \(P(X|Z)\), the integral is intractable, i.e. it does not have a closed form solution.
+Normally, we can compute an approximation of \(P(X)\) using <a href="https://en.wikipedia.org/wiki/Monte_Carlo_method">Monte Carlo sampling</a> as follows:</p>
+<p>\begin{equation}
+\label{eq:objective_sampling}
+P(X) \approx \frac{1}{n} \int_i P(X|Z_i)
+\end{equation}</p>
+<p>where \(Z_i\) are a large number of sampled \(Z\) values.
+For high dimensional cases, \(n\) needs to be extremely large to get an accurate estimation of \(P(X)\).
+One possible solution in this case is to use a more efficient sampling procedure, in which we only select
+the values of \(z\) substantially contributing to the estimation of \(P(X)\).
+We say we need to define a function \(P(Z|X)\) which takes a value \(X\) and gives us a distribution over \(Z\) values
+that are likely to produce \(X\).
+This function is known as the encoder in the context of coding theory, since it transforms \(X\) into a latent code \(Z\).
+In Bayesian terminology, we call \(P(Z|X)\) the posterior, which we seek to infer from the data.</p>
+<h3 id="variational-bayes-for-approximating-the-posterior">Variational Bayes for approximating the posterior</h3>
+<p>Since we cannot compute \(P(Z|X)\) directly, we try to approximate it as closely as possible by a distribution \(Q(Z|X)\).
+This closeness between the two distributions is captured by the <a href="https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence">Kullback-Liebler divergence</a> as shown below.</p>
+<p>\begin{equation}
+\label{eq:kl_divergence}
+\begin{aligned}
+D[Q(Z|X)||P(Z|X)] &amp;= \int Q(Z|X) log[\frac{Q(Z|X)}{P(Z|X)}] dz \\
+&amp;= E_{z \sim Q} [log Q(Z|X) - log P(Z|X)]  \\
+&amp;= E_{z \sim Q} [log Q(Z|X) - log P(X|Z) - log P(Z) + log P(X)]  \\
+&amp;= E_{z \sim Q} [log Q(Z|X) - log P(X|Z) - log P(Z)] + log P(X)  \\
+\end{aligned}
+\end{equation}</p>
+<p>We rearrange the equation to get:</p>
+<p>\begin{equation}
+\label{eq:objective_simplified}
+log P(X) - D[Q(z|X)||P(z|X)] =  E_{z \sim Q} [log P(X|z)] - D[Q(z|X)||P(z|X)]
+\end{equation}</p>
+<p>This equation is at the heart of variational Bayes.
+The left-hand side has the quantity we want to maximize, \(P(X)\), in addition to
+an error term which makes \(Q\) produce \(Z\) that can reproduce a given \(X\).
+The right-hand side offers an equivalent expression that we can optimize using gradient descent.
+Quantities \(Q(Z|X)\) and \(P(X|Z)\) also reveal the encoding/decoding aspect of this framework:
+\(Q\) encodes \(X\) into \(Z\) while \(P\) decodes \(Z\) into \(X\).
+Lastly, when using an arbitrarily high-capacity model for \(Q(Z|X)\), we can make it match
+\(P(Z|X)\), which leads to a KL-divergence of 0, and we will thus be optimizing \(log P(X)\) directly.
+Next we will see how we apply gradient descent to optimize this objective function.</p>
+<h3 id="gradient-descent-and-reparametrization-trick">Gradient-descent and reparametrization trick</h3>
+<p>To apply gradient-descent to the right hand side of equation <a href="#orgb05049e">1</a>,
+we first need to simplify its two terms.
+The second term, \(D[Q(Z|X)||P(Z|X)]\), has a <a href="https://stats.stackexchange.com/a/60699">closed-form expression</a>
+assuming a Gaussian form for \(Q(Z|X)\).</p>
+<p>To simplify the first term in equation <a href="#orgb05049e">1</a>, we take one sample of \(Z\) and consider \(log P(X|Z)\)
+for that \(Z\) as an approximation of \(E_{Z \sim Q} [log P(X|Z)]\).
+Since gradient descent already uses different values of \(X\) sampled from dataset \(D\), we assume that this sampling process
+over many iterations leads to a reasonable approximation of the expected value of interest.
+Put together, the two equations lead to the process shown in figure <a href="#figure--fig:training-vae">2</a>.</p>
+<p><a id="figure--fig:training-vae"></a></p>
+<figure><img src="/ox-hugo/training-vae.png"
+         alt="Figure 2: Training a VAE. Diagram taken from &amp;lt;keng_2017&amp;gt;." width="300px"/><figcaption>
+            <p><span class="figure-number">Figure 2: </span>Training a VAE. Diagram taken from &lt;keng_2017&gt;.</p>
+        </figcaption>
+</figure>
+
+<p>The sampling step required to approximate \(E_{Z \sim Q} [log P(X|Z)]\)  disrupts the back-propagation algorithm used to train the neural network.
+Namely, since sampling is a discrete operation, we cannot take the gradient of its function.
+This is where the <strong><strong>reparametrization trick</strong></strong> comes to play.
+The main thing to notice here is that we can sample from a standard isotropic normal distribution and scale and shift it to our desired \(P(X|z)\)
+distribution.
+We take the sampling step to the input layer, and replace \(z \sim \mathcal{N}(\mu (X), \Sigma (X))\) with \(z = \mu(X) + \Sigma^{\frac{1}{2}}(X) * \epsilon\),
+where \(\epsilon \sim \mathcal{N}(0, I)\).</p>
+<h2 id="summary">Summary</h2>
+<p>In this tutorial, we covered how generative modeling is useful in separating the bias and uncertainty inherent to single-cell sequencing data.
+We also explained the key challenges in fitting generative models, namely: 1) approximating an intractable integral for complex likelihoods
+and 2) defining latent variables. We then showed how variational autoencoders use neural networks
+to implement variational Bayes by transforming the prior on latent variables \(P(Z)\) and the posterior distribution \(P(Z|X)\)
+from standard isotropic distribution to any arbitrary complicated distribution.
+We also covered mathematical details on VAEs like the Kullback-Leibler objective function and the reparametrization trick that allows
+train the neural network via back-propagation.</p>
+<p>Next, we will see a practical example of how to implement a simple VAE to model single-cell RNA seq data, and how the
+distributions recovered from the model can be used for all kinds of downstream biological analysis.</p>
+<h2 id="vaes-in-single-cell-analysis-literature">VAEs in single-cell analysis literature</h2>
+<p>Below is a non-exhaustive list of methods using VAEs to analyze single-cell data:</p>
+<ul>
+<li><a href="https://www.nature.com/articles/s41592-018-0229-2">scVI</a> proposes a VAE model to analyze sc-RNA-seq data.</li>
+<li><a href="https://www.nature.com/articles/s41592-020-01050-x">totalVI</a> extends scVI to modeling multi-modal RNA and protein datasets.</li>
+<li><a href="https://github.com/scvae/scvae">scVAE</a> also focuses on modeling sc-RNA-seq data, but it uses the cell size as a variable.</li>
+<li><a href="https://www.biorxiv.org/content/10.1101/631382v1">SISUA</a> uses a semi-supervised VAE model to build latent space representations incorporating both protein and RNA data.</li>
+</ul>
+<ul class="pa0">
+  
+</ul>
+<div class="mt6 instapaper_ignoref">
+      
+      
+      </div>
+    </div>
+
+    <aside class="w-30-l mt6-l">
+
+
+
+
+</aside>
+
+  </article>
+
+    </main>
+    <footer class="bg-black bottom-0 w-100 pa3" role="contentinfo">
+  <div class="flex justify-between">
+  <a class="f4 fw4 hover-white no-underline white-70 dn dib-ns pv2 ph3" href="http://najwalaabid.github.io/" >
+    &copy;  Najwa Laabid 2022 
+  </a>
+    <div>
+<div class="ananke-socials">
+  
+    <a href="https://twitter.com/__najwalb" target="_blank" class="twitter ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="Twitter link" rel="noopener" aria-label="follow on Twitter——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 67 67;" version="1.1" viewBox="0 0 67 67"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"><path d="M37.167,22.283c-2.619,0.953-4.274,3.411-4.086,6.101  l0.063,1.038l-1.048-0.127c-3.813-0.487-7.145-2.139-9.974-4.915l-1.383-1.377l-0.356,1.017c-0.754,2.267-0.272,4.661,1.299,6.271  c0.838,0.89,0.649,1.017-0.796,0.487c-0.503-0.169-0.943-0.296-0.985-0.233c-0.146,0.149,0.356,2.076,0.754,2.839  c0.545,1.06,1.655,2.097,2.871,2.712l1.027,0.487l-1.215,0.021c-1.173,0-1.215,0.021-1.089,0.467  c0.419,1.377,2.074,2.839,3.918,3.475l1.299,0.444l-1.131,0.678c-1.676,0.976-3.646,1.526-5.616,1.568  C19.775,43.256,19,43.341,19,43.405c0,0.211,2.557,1.397,4.044,1.864c4.463,1.377,9.765,0.783,13.746-1.568  c2.829-1.673,5.657-5,6.978-8.221c0.713-1.716,1.425-4.851,1.425-6.354c0-0.975,0.063-1.102,1.236-2.267  c0.692-0.678,1.341-1.419,1.467-1.631c0.21-0.403,0.188-0.403-0.88-0.043c-1.781,0.636-2.033,0.551-1.152-0.402  c0.649-0.678,1.425-1.907,1.425-2.267c0-0.063-0.314,0.042-0.671,0.233c-0.377,0.212-1.215,0.53-1.844,0.72l-1.131,0.361l-1.027-0.7  c-0.566-0.381-1.361-0.805-1.781-0.932C39.766,21.902,38.131,21.944,37.167,22.283z M33,64C16.432,64,3,50.569,3,34S16.432,4,33,4  s30,13.431,30,30S49.568,64,33,64z" style="fill-rule:evenodd;clip-rule:evenodd;fill:{{ .fill }};"/></svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
+</svg>
+</span></a>
+  
+    <a href="https://github.com/NajwaLaabid" target="_blank" class="github ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="GitHub link" rel="noopener" aria-label="follow on GitHub——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 512 512;" version="1.1" viewBox="0 0 512 512"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+  <path d="M256,32C132.3,32,32,134.8,32,261.7c0,101.5,64.2,187.5,153.2,217.9c11.2,2.1,15.3-5,15.3-11.1   c0-5.5-0.2-19.9-0.3-39.1c-62.3,13.9-75.5-30.8-75.5-30.8c-10.2-26.5-24.9-33.6-24.9-33.6c-20.3-14.3,1.5-14,1.5-14   c22.5,1.6,34.3,23.7,34.3,23.7c20,35.1,52.4,25,65.2,19.1c2-14.8,7.8-25,14.2-30.7c-49.7-5.8-102-25.5-102-113.5   c0-25.1,8.7-45.6,23-61.6c-2.3-5.8-10-29.2,2.2-60.8c0,0,18.8-6.2,61.6,23.5c17.9-5.1,37-7.6,56.1-7.7c19,0.1,38.2,2.6,56.1,7.7   c42.8-29.7,61.5-23.5,61.5-23.5c12.2,31.6,4.5,55,2.2,60.8c14.3,16.1,23,36.6,23,61.6c0,88.2-52.4,107.6-102.3,113.3   c8,7.1,15.2,21.1,15.2,42.5c0,30.7-0.3,55.5-0.3,63c0,6.1,4,13.3,15.4,11C415.9,449.1,480,363.1,480,261.7   C480,134.8,379.7,32,256,32z"/>
+</svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
+</svg>
+</span></a>
+  
+    <a href="https://www.linkedin.com/in/najwa-laabid/" target="_blank" class="linkedin ananke-social-link link-transition stackoverflow link dib z-999 pt3 pt0-l mr1" title="LinkedIn link" rel="noopener" aria-label="follow on LinkedIn——Opens in a new window">
+      
+        <span class="icon"><svg style="enable-background:new 0 0 65 65;" version="1.1" viewBox="0 0 65 65"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <path d="M50.837,48.137V36.425c0-6.275-3.35-9.195-7.816-9.195  c-3.604,0-5.219,1.983-6.119,3.374V27.71h-6.79c0.09,1.917,0,20.427,0,20.427h6.79V36.729c0-0.609,0.044-1.219,0.224-1.655  c0.49-1.22,1.607-2.483,3.482-2.483c2.458,0,3.44,1.873,3.44,4.618v10.929H50.837z M22.959,24.922c2.367,0,3.842-1.57,3.842-3.531  c-0.044-2.003-1.475-3.528-3.797-3.528s-3.841,1.524-3.841,3.528c0,1.961,1.474,3.531,3.753,3.531H22.959z M34,64  C17.432,64,4,50.568,4,34C4,17.431,17.432,4,34,4s30,13.431,30,30C64,50.568,50.568,64,34,64z M26.354,48.137V27.71h-6.789v20.427  H26.354z" style="fill-rule:evenodd;clip-rule:evenodd;fill:{{ .fill }};"/>
+</svg>
+</span>
+      
+<span class="new-window"><svg  height="8px"  style="enable-background:new 0 0 1000 1000;" version="1.1" viewBox="0 0 1000 1000"  xml:space="preserve" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" >
+<path d="M598 128h298v298h-86v-152l-418 418-60-60 418-418h-152v-86zM810 810v-298h86v298c0 46-40 86-86 86h-596c-48 0-86-40-86-86v-596c0-46 38-86 86-86h298v86h-298v596h596z" style="fill-rule:evenodd;clip-rule:evenodd;fill:;"/>
+</svg>
+</span></a>
+  
+</div></div>
+  </div>
+</footer>
+
+  </body>
+</html>

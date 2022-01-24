@@ -5,6 +5,16 @@
     <link>http://najwalaabid.github.io/blog/</link>
     <description>Recent content in Blog on Najwa Laabid</description>
     <generator>Hugo -- gohugo.io</generator>
-    <language>en-us</language><atom:link href="http://najwalaabid.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <language>en-us</language>
+    <lastBuildDate>Thu, 30 Dec 2021 00:00:00 +0200</lastBuildDate><atom:link href="http://najwalaabid.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Variational Autoencoders for Single-Cell Genomics</title>
+      <link>http://najwalaabid.github.io/blog/vae-genomics/</link>
+      <pubDate>Thu, 30 Dec 2021 00:00:00 +0200</pubDate>
+      
+      <guid>http://najwalaabid.github.io/blog/vae-genomics/</guid>
+      <description>Introduction When participating in the Neurips 2021 single-cell analysis challenge, my team and I proposed a solution based on variational autoencoders (VAEs) for the modality prediction task. Later on, when trying to improve the model to include batch effect correction, I realized I needed to delve deeper into the mathematics behind VAEs and their modeling philosophy to be able to manipulate them fully. This lead to a reading spree on everything variational autoencoders, from the original paper, to subsequent published tutorials, and a number of online blogs (Keng&amp;rsquo;s, and Jaan&amp;rsquo;s being my favorite).</description>
+    </item>
+    
   </channel>
 </rss>
