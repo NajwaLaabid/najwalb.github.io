@@ -13,7 +13,8 @@
       <pubDate>Thu, 30 Dec 2021 00:00:00 +0200</pubDate>
       
       <guid>http://najwalaabid.github.io/blog/vae-genomics/</guid>
-      <description>This is the first of a series of tutorials presenting variational autoencoders (VAEs) to an audience with a bioinformatics&#39; background. This first blog discusses the motivation behind VAEs and explains their mathematical basis within the context of modeling single-cell genomics. A following tutorial will cover an implementation of a simple VAE for modeling sc-RNA seq data. No prior knowledge of Bayesian methods or single-cell analysis is assumed. Some sources that helped make this tutorial are Diederik Kingma&amp;rsquo;s original paper, Carl Doersch&amp;rsquo;s tutorial, and a number of online blogs focusing on VAEs applied to computer vision (Keng&amp;rsquo;s, and Jaan&amp;rsquo;s being my favorite).</description>
+      <description>This is the first of a series of tutorials presenting variational autoencoders (VAEs) to an audience of bioinformaticians. This first post discusses the motivation behind VAEs and their mathematical basis within the context of modeling single-cell data. A following tutorial will cover an implementation of a simple VAE for modeling sc-RNA seq data as an example.
+Some sources that helped make this tutorial are Diederik Kingma&amp;rsquo;s original paper, Carl Doersch&amp;rsquo;s tutorial, and a number of online blogs focusing on VAEs applied to computer vision (Keng&amp;rsquo;s, and Jaan&amp;rsquo;s being my favorite).</description>
     </item>
     
   </channel>
