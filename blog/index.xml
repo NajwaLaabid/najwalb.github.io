@@ -6,15 +6,15 @@
     <description>Recent content in Blog on Najwa Laabid</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Thu, 30 Dec 2021 00:00:00 +0200</lastBuildDate><atom:link href="http://najwalaabid.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 04 Feb 2022 15:41:03 +0200</lastBuildDate><atom:link href="http://najwalaabid.github.io/blog/index.xml" rel="self" type="application/rss+xml" />
     <item>
-      <title>Variational Autoencoders for Single-Cell Genomics</title>
+      <title>Variational Autoencoders for Modeling Single-Cell Data</title>
       <link>http://najwalaabid.github.io/blog/vae-genomics/</link>
-      <pubDate>Thu, 30 Dec 2021 00:00:00 +0200</pubDate>
+      <pubDate>Fri, 04 Feb 2022 15:41:03 +0200</pubDate>
       
       <guid>http://najwalaabid.github.io/blog/vae-genomics/</guid>
-      <description>This is the first of a series of tutorials presenting variational autoencoders (VAEs) to an audience of bioinformaticians. This first post discusses the motivation behind VAEs and their mathematical basis within the context of modeling single-cell data. A following tutorial will cover an implementation of a simple VAE for modeling sc-RNA seq data as an example.
-Some sources that helped make this tutorial are Diederik Kingma&amp;rsquo;s original paper, Carl Doersch&amp;rsquo;s tutorial, and a number of online blogs focusing on VAEs applied to computer vision (Keng&amp;rsquo;s, and Jaan&amp;rsquo;s being my favorite).</description>
+      <description>This is the first of a series of tutorials presenting variational autoencoders (VAEs) to an audience of bioinformaticians. This post discusses the motivation behind VAEs and their mathematical basis within the context of modeling single-cell data. A following tutorial will cover the implementation of a simple VAE for modeling single-cell RNA sequencing (sc-RNA-seq) data as an example.
+Some sources that helped make this tutorial are Diederik Kingma&amp;rsquo;s original paper, Carl Doersch&amp;rsquo;s tutorial, Andriy Mnih&amp;rsquo;s Deepmind x UCL lecture, and a number of online blogs focusing on VAEs applied to computer vision (Keng&amp;rsquo;s and Jaan&amp;rsquo;s being my favorite).</description>
     </item>
     
   </channel>
